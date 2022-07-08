@@ -1,6 +1,6 @@
 /******************************************************************************/
 // Created by: SIKTEC.
-// Release Version : 1.0.1
+// Release Version : 1.0.2
 // Creation Date: 2022-04-12
 // Copyright 2022, SIKTEC.
 // 
@@ -12,6 +12,9 @@
 /*****************************      Changelog       ****************************
 1.0.1:
     -> initial release.
+1.0.2:
+    -> Added other boards (ARDUINO_ARCH_ARC32, __ASR6502__).
+    -> Changed bit order enum naming to fix conflict with adafruit libs. 
 *******************************************************************************/
 
 /** @file SIKTEC_SPI.h */
@@ -38,26 +41,29 @@
     defined(ARDUINO_AVR_ATmega4808) || defined(ARDUINO_AVR_ATmega3209) ||      \
     defined(ARDUINO_AVR_ATmega3208) || defined(ARDUINO_AVR_ATmega1609) ||      \
     defined(ARDUINO_AVR_ATmega1608) || defined(ARDUINO_AVR_ATmega809) ||       \
-    defined(ARDUINO_AVR_ATmega808)
+    defined(ARDUINO_AVR_ATmega808) || defined(ARDUINO_ARCH_ARC32)
 
-    typedef enum _BitOrder {
-        SPI_BITORDER_MSBFIRST = MSBFIRST,
-        SPI_BITORDER_LSBFIRST = LSBFIRST,
-    } BitOrder;
+    typedef enum _SIKSPI_BitOrder {
+        SIKSPI_BITORDER_MSBFIRST = MSBFIRST,
+        SIKSPI_BITORDER_LSBFIRST = LSBFIRST,
+    } SIKSPI_BitOrder;
 
-#elif defined(ESP32) || defined(__ASR6501__)
+#elif defined(ESP32) || defined(__ASR6501__) || defined(__ASR6502__)
 
     // some modern SPI definitions don't have BitOrder enum and have different SPI
     // mode defines
-    typedef enum _BitOrder {
-    SPI_BITORDER_MSBFIRST = SPI_MSBFIRST,
-    SPI_BITORDER_LSBFIRST = SPI_LSBFIRST,
-    } BitOrder;
+    typedef enum _SIKSPI_BitOrder {
+    SIKSPI_BITORDER_MSBFIRST = SPI_MSBFIRST,
+    SIKSPI_BITORDER_LSBFIRST = SPI_LSBFIRST,
+    } SIKSPI_BitOrder;
 
 #else
     // Some platforms have a BitOrder enum but its named MSBFIRST/LSBFIRST
-    #define SPI_BITORDER_MSBFIRST MSBFIRST
-    #define SPI_BITORDER_LSBFIRST LSBFIRST
+
+    typedef enum _SIKSPI_BitOrder {
+    SIKSPI_BITORDER_MSBFIRST = MSBFIRST,
+    SIKSPI_BITORDER_LSBFIRST = LSBFIRST,
+    } SIKSPI_BitOrder;
 
 #endif
 
@@ -76,15 +82,15 @@ private:
     SPIClass *_spi;
     SPISettings *_spiSetting;
     uint32_t _freq;                     ///< Used freq.
-    BitOrder _dataOrder;                ///< SPI bit order.
+    SIKSPI_BitOrder _dataOrder;                ///< SPI bit order.
     uint8_t _dataMode;                  ///< SPI data mode.
     int8_t _cs, _sck, _mosi, _miso;     
     bool _cs_control;                   ///< this flag is used to prevent the instance controlling the CS pin.
 
 public:
 
-    SIKTEC_SPI(int8_t cspin, uint32_t freq = 1000000, BitOrder dataOrder = SPI_BITORDER_MSBFIRST, uint8_t dataMode = SPI_MODE0, SPIClass *theSPI = &SPI);
-    SIKTEC_SPI(int8_t cspin, int8_t sck, int8_t miso, int8_t mosi, uint32_t freq = 1000000, BitOrder dataOrder = SPI_BITORDER_MSBFIRST, uint8_t dataMode = SPI_MODE0);
+    SIKTEC_SPI(int8_t cspin, uint32_t freq = 1000000, SIKSPI_BitOrder dataOrder = SIKSPI_BitOrder::SIKSPI_BITORDER_MSBFIRST, uint8_t dataMode = SPI_MODE0, SPIClass *theSPI = &SPI);
+    SIKTEC_SPI(int8_t cspin, int8_t sck, int8_t miso, int8_t mosi, uint32_t freq = 1000000, SIKSPI_BitOrder dataOrder = SIKSPI_BitOrder::SIKSPI_BITORDER_MSBFIRST, uint8_t dataMode = SPI_MODE0);
     ~SIKTEC_SPI();
 
     bool begin(); ///< Begin SPI communication.

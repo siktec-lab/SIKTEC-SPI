@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Created by: SIKTEC.
-// Release Version : 1.0.1
-// Creation Date: 2022-03-31
+// Release Version : 1.0.2
+// Creation Date: 2022-04-12
 // Copyright 2022, SIKTEC.
 /******************************************************************************/
 
@@ -14,11 +14,11 @@
  * @param  cspin     The arduino pin number to use for chip select
  * @param  freq      The SPI clock frequency to use, defaults to 1MHz
  * @param  dataOrder The SPI data order to use for bits within each byte,
- *                   defaults to SPI_BITORDER_MSBFIRST
+ *                   defaults to SIKSPI_BITORDER_MSBFIRST
  * @param  dataMode  The SPI mode to use, defaults to SPI_MODE0
  * @param  theSPI    The SPI bus to use, defaults to &theSPI
  */
-SIKTEC_SPI::SIKTEC_SPI(int8_t cspin, uint32_t freq, BitOrder dataOrder, uint8_t dataMode, SPIClass *theSPI) {
+SIKTEC_SPI::SIKTEC_SPI(int8_t cspin, uint32_t freq, SIKSPI_BitOrder dataOrder, uint8_t dataMode, SPIClass *theSPI) {
     
     this->_cs           = cspin;
     this->_sck          = -1;
@@ -41,10 +41,10 @@ SIKTEC_SPI::SIKTEC_SPI(int8_t cspin, uint32_t freq, BitOrder dataOrder, uint8_t 
  * @param  misopin   The arduino pin number to use for MISO, set to -1 if not used
  * @param  mosipin   The arduino pin number to use for MOSI, set to -1 if not used
  * @param  freq      The SPI clock frequency to use, defaults to 1MHz
- * @param  dataOrder The SPI data order to use for bits within each byte, defaults to SPI_BITORDER_MSBFIRST
+ * @param  dataOrder The SPI data order to use for bits within each byte, defaults to SIKSPI_BITORDER_MSBFIRST
  * @param  dataMode  The SPI mode to use, defaults to SPI_MODE0
  */
-SIKTEC_SPI::SIKTEC_SPI(int8_t cspin, int8_t sckpin, int8_t misopin, int8_t mosipin, uint32_t freq, BitOrder dataOrder, uint8_t dataMode) {
+SIKTEC_SPI::SIKTEC_SPI(int8_t cspin, int8_t sckpin, int8_t misopin, int8_t mosipin, uint32_t freq, SIKSPI_BitOrder dataOrder, uint8_t dataMode) {
     
     this->_cs           = cspin;
     this->_sck          = sckpin;
@@ -152,7 +152,7 @@ void SIKTEC_SPI::transfer(uint8_t *buffer, size_t len) {
     }
 
     uint8_t startbit;
-    if (this->_dataOrder == SPI_BITORDER_LSBFIRST) {
+    if (this->_dataOrder == SIKSPI_BitOrder::SIKSPI_BITORDER_LSBFIRST) {
         startbit = 0x1;
     } else {
         startbit = 0x80;
@@ -167,7 +167,7 @@ void SIKTEC_SPI::transfer(uint8_t *buffer, size_t len) {
         uint8_t reply = 0;
         uint8_t send = buffer[i];
 
-        for (uint8_t b = startbit; b != 0; b = (this->_dataOrder == SPI_BITORDER_LSBFIRST) ? b << 1 : b >> 1) {
+        for (uint8_t b = startbit; b != 0; b = (this->_dataOrder == SIKSPI_BitOrder::SIKSPI_BITORDER_LSBFIRST) ? b << 1 : b >> 1) {
 
             if (bitdelay_us) {
                 delayMicroseconds(bitdelay_us);
